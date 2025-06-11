@@ -1,4 +1,4 @@
-.
+´´´.
 ├── config
 │   └── db.js
 ├── db
@@ -6,11 +6,14 @@
 │   └── smartmenu_db_dml.sql
 ├── index.js
 ├── middleware
-│   └── authMiddleware.js
+│   ├── authMiddleware.js
+│   └── roleMiddleware.js
 ├── models
 ├── package-lock.json
 ├── package.json
 ├── README.md
 ├── routes
-│   └── auth.js
+│   ├── auth.js
+│   └── usuarios.js
 └── test.js
+´´´
