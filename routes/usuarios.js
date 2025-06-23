@@ -44,4 +44,31 @@ router.post("/", verificarToken, requireRole(1), async (req, res) => {
   }
 });
 
+// PUT: actualizar usuario (solo admin)
+router.put("/:id", verificarToken, requireRole(1), async (req, res) => {
+  const userId = req.params.id;
+  const { nombre, usuario, contraseña, rol_id } = req.body;
+  if (!nombre || !usuario || !contraseña || !rol_id) {
+    return res.status(400).json({ error: "Faltan campos requeridos" });
+  }
+  try {
+    const hashedPassword = await bcrypt.hash(contraseña, 10);
+    const query =
+      "UPDATE usuarios SET nombre = ?, usuario = ?, contraseña = ?, rol_id = ? WHERE id = ?";
+    db.query(
+      query,
+      [nombre, usuario, hashedPassword, rol_id, userId],
+      (err, result) => {
+        if (err)
+          return res.status(500).json({ error: "Error al actualizar usuario" });
+        if (result.affectedRows === 0)
+          return res.status(404).json({ error: "Usuario no encontrado" });
+        res.json({ message: "Usuario actualizado correctamente" });
+      }
+    );
+  } catch (err) {
+    res.status(500).json({ error: "Error al procesar la contraseña" });
+  }
+});
+
 module.exports = router;

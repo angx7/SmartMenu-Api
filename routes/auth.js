@@ -34,4 +34,28 @@ router.post("/login", (req, res) => {
   });
 });
 
+router.get("/rol", (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "Token no proporcionado" });
+
+  jwt.verify(token, SECRET, (err, decoded) => {
+    if (err) return res.status(401).json({ error: "Token inválido" });
+
+    const query = `
+      SELECT r.nombre AS rol
+      FROM usuarios u
+      JOIN roles r ON u.rol_id = r.id
+      WHERE u.id = ?
+    `;
+
+    db.query(query, [decoded.id], (err, results) => {
+      if (err) return res.status(500).json({ error: "Error interno" });
+      if (results.length === 0)
+        return res.status(404).json({ error: "Usuario no encontrado" });
+
+      res.json({ rol: results[0].rol });
+    });
+  });
+});
+
 module.exports = router;
