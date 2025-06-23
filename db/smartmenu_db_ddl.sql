@@ -68,6 +68,16 @@ CREATE TABLE pedido_detalles (
     FOREIGN KEY (platillo_id) REFERENCES platillos(id)
 );
 
+CREATE TABLE platillos_insumos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  platillo_id INT,
+  insumo_id INT,
+  cantidad DECIMAL(10,2),
+  FOREIGN KEY (platillo_id) REFERENCES platillos(id),
+  FOREIGN KEY (insumo_id) REFERENCES insumos(id)
+);
+
+
 
 -- ===============================
 -- 4. Inventario de Insumos
