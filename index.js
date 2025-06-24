@@ -6,6 +6,7 @@ const clientesRoutes = require("./routes/clients");
 const platillosRoutes = require("./routes/platillos");
 const pedidosRoutes = require("./routes/pedidos");
 const proveedoresRoutes = require("./routes/proveedores");
+const insumosRoutes = require("./routes/insumos");
 
 const app = express();
 app.use(express.json());
@@ -15,6 +16,7 @@ app.use("/api/clientes", clientesRoutes); // protegido
 app.use("/api/platillos", platillosRoutes); // protegido
 app.use("/api/pedidos", pedidosRoutes); // protegido
 app.use("/api/proveedores", proveedoresRoutes); // protegido
+app.use("/api/insumos", insumosRoutes); // protegido
 
 app.route("/").get((req, res) => {
   res.send("Welcome to the Smart Menu API!");
