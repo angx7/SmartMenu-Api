@@ -1,4 +1,4 @@
-```
+.
 ├── config
 │   └── db.js
 ├── db
@@ -12,8 +12,14 @@
 ├── package-lock.json
 ├── package.json
 ├── README.md
-├── routes
-│   ├── auth.js
-│   └── usuarios.js
-└── test.js
-```
+└── routes
+├── auth.js
+├── clients.js
+├── insumos.js
+├── pedidos.js
+├── platillos.js
+├── proveedores.js
+├── reportes.js
+└── usuarios.js
+
+6 directories, 17 files

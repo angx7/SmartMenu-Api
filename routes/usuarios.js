@@ -71,4 +71,17 @@ router.put("/:id", verificarToken, requireRole(1), async (req, res) => {
   }
 });
 
+// obtener usuario por rol (solo admin)
+router.get("/rol/:rolId", verificarToken, requireRole(1), (req, res) => {
+  const rolId = req.params.rolId;
+  const query = "SELECT * FROM usuarios WHERE rol_id = ?";
+  db.query(query, [rolId], (err, results) => {
+    if (err)
+      return res.status(500).json({ error: "Error al obtener usuarios" });
+    if (results.length === 0)
+      return res.status(404).json({ error: "No se encontraron usuarios" });
+    res.json(results);
+  });
+});
+
 module.exports = router;
