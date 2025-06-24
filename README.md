@@ -13,13 +13,13 @@
 ├── package.json
 ├── README.md
 └── routes
-├── auth.js
-├── clients.js
-├── insumos.js
-├── pedidos.js
-├── platillos.js
-├── proveedores.js
-├── reportes.js
-└── usuarios.js
+    ├── auth.js
+    ├── clients.js
+    ├── insumos.js
+    ├── pedidos.js
+    ├── platillos.js
+    ├── proveedores.js
+    ├── reportes.js
+    └── usuarios.js
 
 6 directories, 17 files
