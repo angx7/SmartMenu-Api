@@ -31,7 +31,7 @@ router.post("/ventas-diarias", verificarToken, soloAdmin, (req, res) => {
     FROM pedidos p
     JOIN pedido_detalles pd ON p.id = pd.pedido_id
     JOIN platillos pl ON pd.platillo_id = pl.id
-    WHERE p.estado = 'servido'
+    WHERE p.estado = 'finalizado'
     GROUP BY DATE(p.fecha)
     ORDER BY fecha DESC
   `;
