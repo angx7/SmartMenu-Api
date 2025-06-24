@@ -1,17 +1,18 @@
 require("dotenv").config();
 const express = require("express");
-// const cors = require("cors");
-// const bodyParser = require("body-parser");
-// const db = require("./config/db");
 const authRoutes = require("./routes/auth");
 const usuariosRoutes = require("./routes/usuarios");
 const clientesRoutes = require("./routes/clients");
+const platillosRoutes = require("./routes/platillos");
+const pedidosRoutes = require("./routes/pedidos");
 
 const app = express();
 app.use(express.json());
 app.use("/api", authRoutes); // Ruta: /api/login
 app.use("/api/usuarios", usuariosRoutes); // protegido
 app.use("/api/clientes", clientesRoutes); // protegido
+app.use("/api/platillos", platillosRoutes); // protegido
+app.use("/api/pedidos", pedidosRoutes); // protegido
 
 app.route("/").get((req, res) => {
   res.send("Welcome to the Smart Menu API!");
