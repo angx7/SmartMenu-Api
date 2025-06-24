@@ -48,27 +48,47 @@ router.post("/", verificarToken, requireRole(1), async (req, res) => {
 router.put("/:id", verificarToken, requireRole(1), async (req, res) => {
   const userId = req.params.id;
   const { nombre, usuario, contraseña, rol_id } = req.body;
-  if (!nombre || !usuario || !contraseña || !rol_id) {
+
+  if (!nombre || !usuario || !rol_id) {
     return res.status(400).json({ error: "Faltan campos requeridos" });
   }
+
   try {
-    const hashedPassword = await bcrypt.hash(contraseña, 10);
-    const query =
-      "UPDATE usuarios SET nombre = ?, usuario = ?, contraseña = ?, rol_id = ? WHERE id = ?";
-    db.query(
-      query,
-      [nombre, usuario, hashedPassword, rol_id, userId],
-      (err, result) => {
-        if (err)
-          return res.status(500).json({ error: "Error al actualizar usuario" });
-        if (result.affectedRows === 0)
-          return res.status(404).json({ error: "Usuario no encontrado" });
-        res.json({ message: "Usuario actualizado correctamente" });
-      }
-    );
+    let query, params;
+    if (contraseña) {
+      const hashedPassword = await bcrypt.hash(contraseña, 10);
+      query =
+        "UPDATE usuarios SET nombre = ?, usuario = ?, contraseña = ?, rol_id = ? WHERE id = ?";
+      params = [nombre, usuario, hashedPassword, rol_id, userId];
+    } else {
+      query =
+        "UPDATE usuarios SET nombre = ?, usuario = ?, rol_id = ? WHERE id = ?";
+      params = [nombre, usuario, rol_id, userId];
+    }
+
+    db.query(query, params, (err, result) => {
+      if (err)
+        return res.status(500).json({ error: "Error al actualizar usuario" });
+      if (result.affectedRows === 0)
+        return res.status(404).json({ error: "Usuario no encontrado" });
+      res.json({ message: "Usuario actualizado correctamente" });
+    });
   } catch (err) {
     res.status(500).json({ error: "Error al procesar la contraseña" });
   }
+});
+
+// DELETE: eliminar usuario (solo admin)
+router.delete("/:id", verificarToken, requireRole(1), (req, res) => {
+  const userId = req.params.id;
+  const query = "DELETE FROM usuarios WHERE id = ?";
+  db.query(query, [userId], (err, result) => {
+    if (err)
+      return res.status(500).json({ error: "Error al eliminar usuario" });
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    res.json({ message: "Usuario eliminado correctamente" });
+  });
 });
 
 // obtener usuario por rol (solo admin)

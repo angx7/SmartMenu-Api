@@ -2,6 +2,36 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
+const verificarToken = require("../middleware/authMiddleware");
+
+// Middleware para permitir solo admin o cocinero
+const adminOCocinero = (req, res, next) => {
+  const token = req.headers["authorization"]?.split(" ")[1];
+  if (!token) return res.status(403).json({ error: "Token no proporcionado" });
+
+  const jwt = require("jsonwebtoken");
+  const SECRET = "clave-ultra-secreta-smartmenu";
+
+  jwt.verify(token, SECRET, (err, decoded) => {
+    if (err) return res.status(401).json({ error: "Token inválido" });
+
+    const query = `SELECT rol_id FROM usuarios WHERE id = ?`;
+    db.query(query, [decoded.id], (err, result) => {
+      if (err) return res.status(500).json({ error: "Error validando rol" });
+      if (result.length === 0)
+        return res.status(404).json({ error: "Usuario no encontrado" });
+
+      const rol = result[0].rol_id;
+      if (rol === 1 || rol === 3) {
+        next();
+      } else {
+        return res
+          .status(403)
+          .json({ error: "Acceso restringido a cocineros o administradores" });
+      }
+    });
+  });
+};
 
 // Obtener cuenta de una mesa (pedido activo + detalles + total)
 router.get("/mesa/:mesaId", (req, res) => {
@@ -102,6 +132,46 @@ router.put("/:pedidoId/finalizar", (req, res) => {
     if (result.affectedRows === 0)
       return res.status(404).json({ error: "Pedido no encontrado" });
     res.json({ message: "Pedido finalizado correctamente" });
+  });
+});
+
+// Traer todos los pedidos activos con sus detalles de platillos
+router.get("/comandas", adminOCocinero, (req, res) => {
+  const pedidosQuery = `
+    SELECT p.id AS pedido_id, p.mesa_id, p.estado, p.fecha, u.nombre AS mesero
+    FROM pedidos p
+    JOIN usuarios u ON p.usuario_id = u.id
+    WHERE p.estado = 'activo'
+    ORDER BY p.fecha DESC
+  `;
+
+  db.query(pedidosQuery, (err, pedidos) => {
+    if (err) return res.status(500).json({ error: "Error obteniendo pedidos" });
+
+    if (pedidos.length === 0) return res.json([]);
+
+    const detallesQuery = `
+      SELECT pd.pedido_id, pl.nombre AS platillo, pd.cantidad
+      FROM pedido_detalles pd
+      JOIN platillos pl ON pd.platillo_id = pl.id
+      WHERE pd.pedido_id IN (?)
+    `;
+
+    const pedidoIds = pedidos.map((p) => p.pedido_id);
+
+    db.query(detallesQuery, [pedidoIds], (err, detalles) => {
+      if (err)
+        return res.status(500).json({ error: "Error obteniendo detalles" });
+
+      const pedidosConDetalles = pedidos.map((pedido) => {
+        const comanda = detalles.filter(
+          (d) => d.pedido_id === pedido.pedido_id
+        );
+        return { ...pedido, comanda };
+      });
+
+      res.json(pedidosConDetalles);
+    });
   });
 });
 
