@@ -3,14 +3,50 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
 
-// Crear nuevo insumo
+// Crear nuevo insumo y vincular con proveedor (sin verificación)
 router.post("/", (req, res) => {
-  const { nombre, stock, unidad, stock_minimo } = req.body;
-  const query = `INSERT INTO insumos (nombre, stock, unidad, stock_minimo) VALUES (?, ?, ?, ?)`;
-  db.query(query, [nombre, stock, unidad, stock_minimo], (err, result) => {
-    if (err) return res.status(500).json({ error: "Error al crear insumo" });
-    res.status(201).json({ insumo_id: result.insertId });
-  });
+  const { nombre, stock, unidad, stock_minimo, proveedor_id, precio } =
+    req.body;
+
+  if (
+    !nombre ||
+    stock == null ||
+    !unidad ||
+    stock_minimo == null ||
+    !proveedor_id ||
+    !precio
+  ) {
+    return res.status(400).json({ error: "Faltan campos requeridos" });
+  }
+
+  const insertInsumo = `INSERT INTO insumos (nombre, stock, unidad, stock_minimo) VALUES (?, ?, ?, ?)`;
+
+  db.query(
+    insertInsumo,
+    [nombre, stock, unidad, stock_minimo],
+    (err, result) => {
+      if (err)
+        return res
+          .status(500)
+          .json({ error: "Error al crear insumo", details: err.message });
+
+      const insumoId = result.insertId;
+
+      const insertRelacion = `INSERT INTO insumos_proveedores (insumo_id, proveedor_id, precio) VALUES (?, ?, ?)`;
+
+      db.query(insertRelacion, [insumoId, proveedor_id, precio], (err2) => {
+        if (err2)
+          return res.status(500).json({
+            error: "Error al vincular proveedor",
+            details: err2.message,
+          });
+
+        res
+          .status(201)
+          .json({ message: "Insumo y proveedor creados", insumo_id: insumoId });
+      });
+    }
+  );
 });
 
 // Obtener todos los insumos

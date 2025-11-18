@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Metricas",
+  "type": "object",
+  "properties": {
+    "graficas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "enum": ["line", "bar", "pie"]
+          },
+          "titulo": { "type": "string" },
+          "labels": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "values": {
+            "type": "array",
+            "items": { "type": "number" }
+          }
+        },
+        "required": ["tipo", "titulo", "labels", "values"]
+      }
+    }
+  },
+  "required": ["graficas"]
+}
