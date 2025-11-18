@@ -1,64 +1,96 @@
-// routes/proveedores.js
-const express = require("express");
+import express from "express";
+import { db } from "../config/db.js";
+
 const router = express.Router();
-const db = require("../config/db");
 
-// Crear proveedor
-router.post("/", (req, res) => {
-  const { nombre, contacto, telefono, correo } = req.body;
+// ============================================
+// POST: Crear proveedor
+// ============================================
+router.post("/", async (req, res) => {
+  try {
+    const { nombre, contacto, telefono, correo } = req.body;
 
-  const insert = `INSERT INTO proveedores (nombre, contacto, telefono, correo) VALUES (?, ?, ?, ?)`;
-  db.query(insert, [nombre, contacto, telefono, correo], (err, result) => {
-    if (err) return res.status(500).json({ error: "Error al crear proveedor" });
+    const insert = `
+      INSERT INTO proveedores (nombre, contacto, telefono, correo)
+      VALUES (?, ?, ?, ?)
+    `;
+
+    const [result] = await db.query(insert, [
+      nombre,
+      contacto,
+      telefono,
+      correo,
+    ]);
+
     res.status(201).json({ proveedor_id: result.insertId });
-  });
+  } catch (err) {
+    res.status(500).json({ error: "Error al crear proveedor" });
+  }
 });
 
-// Consultar todos los proveedores
-router.get("/", (req, res) => {
-  const query = `SELECT * FROM proveedores`;
-  db.query(query, (err, results) => {
-    if (err)
-      return res.status(500).json({ error: "Error al obtener proveedores" });
+// ============================================
+// GET: Consultar todos los proveedores
+// ============================================
+router.get("/", async (req, res) => {
+  try {
+    const [results] = await db.query("SELECT * FROM proveedores");
     res.json(results);
-  });
+  } catch (err) {
+    res.status(500).json({ error: "Error al obtener proveedores" });
+  }
 });
 
-// Actualizar proveedor
-router.put("/:id", (req, res) => {
-  const proveedorId = req.params.id;
-  const { nombre, contacto, telefono, correo } = req.body;
+// ============================================
+// PUT: Actualizar proveedor
+// ============================================
+router.put("/:id", async (req, res) => {
+  try {
+    const proveedorId = req.params.id;
+    const { nombre, contacto, telefono, correo } = req.body;
 
-  const update = `
-    UPDATE proveedores SET nombre = ?, contacto = ?, telefono = ?, correo = ?
-    WHERE id = ?
-  `;
+    const update = `
+      UPDATE proveedores
+      SET nombre = ?, contacto = ?, telefono = ?, correo = ?
+      WHERE id = ?
+    `;
 
-  db.query(
-    update,
-    [nombre, contacto, telefono, correo, proveedorId],
-    (err, result) => {
-      if (err)
-        return res.status(500).json({ error: "Error al actualizar proveedor" });
-      if (result.affectedRows === 0)
-        return res.status(404).json({ error: "Proveedor no encontrado" });
-      res.json({ message: "Proveedor actualizado correctamente" });
-    }
-  );
-});
+    const [result] = await db.query(update, [
+      nombre,
+      contacto,
+      telefono,
+      correo,
+      proveedorId,
+    ]);
 
-// Dar de baja proveedor (eliminación lógica si se desea)
-router.delete("/:id", (req, res) => {
-  const proveedorId = req.params.id;
-
-  const eliminar = `DELETE FROM proveedores WHERE id = ?`;
-  db.query(eliminar, [proveedorId], (err, result) => {
-    if (err)
-      return res.status(500).json({ error: "Error al eliminar proveedor" });
-    if (result.affectedRows === 0)
+    if (result.affectedRows === 0) {
       return res.status(404).json({ error: "Proveedor no encontrado" });
-    res.json({ message: "Proveedor eliminado correctamente" });
-  });
+    }
+
+    res.json({ message: "Proveedor actualizado correctamente" });
+  } catch (err) {
+    res.status(500).json({ error: "Error al actualizar proveedor" });
+  }
 });
 
-module.exports = router;
+// ============================================
+// DELETE: Eliminar proveedor
+// ============================================
+router.delete("/:id", async (req, res) => {
+  try {
+    const proveedorId = req.params.id;
+
+    const [result] = await db.query("DELETE FROM proveedores WHERE id = ?", [
+      proveedorId,
+    ]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Proveedor no encontrado" });
+    }
+
+    res.json({ message: "Proveedor eliminado correctamente" });
+  } catch (err) {
+    res.status(500).json({ error: "Error al eliminar proveedor" });
+  }
+});
+
+export default router;

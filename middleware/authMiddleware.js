@@ -1,22 +1,19 @@
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
+
 const SECRET = "clave-ultra-secreta-smartmenu";
 
-const verificarToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; // formato: Bearer token
+export default function verificarToken(req, res, next) {
+  const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
-    return res.status(403).json({ error: "Token no proporcionado" });
+    return res.status(401).json({ error: "Token no proporcionado" });
   }
 
-  jwt.verify(token, SECRET, (err, user) => {
-    if (err) {
-      return res.status(401).json({ error: "Token inválido" });
-    }
-
-    req.user = user; // attach payload a la request
+  try {
+    const decoded = jwt.verify(token, SECRET);
+    req.user = decoded;
     next();
-  });
-};
-
-module.exports = verificarToken;
+  } catch (error) {
+    return res.status(401).json({ error: "Token inválido" });
+  }
+}
