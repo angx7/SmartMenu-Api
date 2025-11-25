@@ -19,6 +19,7 @@ jobs:
           username: ${{ secrets.DROPLET_USER }}
           key: ${{ secrets.DROPLET_KEY }}
           script: |
+            export PATH=$PATH:/usr/local/bin:/usr/bin
             cd /var/www/smartmenu
             git pull origin master
             npm install --production
