@@ -88,7 +88,7 @@ CREATE TABLE insumos (
     stock DECIMAL(10, 2) NOT NULL,
     unidad VARCHAR(20) NOT NULL,
     stock_minimo DECIMAL(10, 2)
-);
+);|
 
 -- ===============================
 -- 5. Proveedores
