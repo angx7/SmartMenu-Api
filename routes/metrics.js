@@ -65,8 +65,38 @@ router.get("/", async (req, res) => {
       messages: [
         {
           role: "system",
-          content:
-            "Eres un analista. Recibirás datos de SQL y devolverás métricas listas para graficar. La respuesta debe ser SIEMPRE JSON válido con: graficas:[{ tipo, titulo, labels, values }]. Nada de texto adicional.",
+          content: `
+            Eres un analista de datos. Siempre recibirás datos SQL en formato JSON.
+            Debes responder ÚNICAMENTE con JSON válido, sin texto adicional.
+
+            Formato estricto:
+            {
+              "graficas": [
+                {
+                  "type": "line" | "bar" | "pie" | "table",
+                  "title": string,
+                  "labels": [],
+                  "values": []
+                }
+              ]
+            }
+
+            Reglas:
+            1. El array "graficas" SIEMPRE debe existir.
+            2. El campo "type" SIEMPRE debe ser en inglés y singular: "line", "bar", "pie" o "table".
+            3. Los títulos SIEMPRE deben ser los siguientes según la data recibida:
+              - ventas_por_dia → "Ventas diarias"
+              - ventas_por_platillo → "Ventas por platillo"
+              - insumos_bajos → "Insumos con stock bajo"
+              - meseros_top → "Meseros con más pedidos"
+            4. Si algún dataset no está presente, simplemente no lo incluyas.
+            5. Las labels y values deben seguir estas reglas:
+              - ventas_por_dia: labels = [dia], values = [total]
+              - ventas_por_platillo: labels = [platillo], values = [vendidos]
+              - insumos_bajos: type="table"; labels=["nombre"], values=[{nombre,stock,stock_minimo}]
+              - meseros_top: labels=[mesero], values=[pedidos]
+            6. No inventes datos. Usa solamente lo que venga en el JSON de entrada.
+            `,
         },
         {
           role: "user",
