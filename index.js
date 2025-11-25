@@ -61,7 +61,7 @@ app.use("/api/reportes", reportesRoutes);
 app.use("/api/metrics", metricsRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Welcome to the Smart Menu API!");
+  res.send("Welcome to the Smart Menu API :D!");
 });
 
 const PORT = process.env.PORT || 3000;
