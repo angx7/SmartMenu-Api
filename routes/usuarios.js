@@ -139,4 +139,17 @@ router.get("/rol/:rolId", verificarToken, requireRole(1), async (req, res) => {
   }
 });
 
+// ====================================================
+// GET: obtener todos los roles (solo admin)
+// ====================================================
+
+router.get("/roles/all", verificarToken, requireRole(1), async (req, res) => {
+  try {
+    const [results] = await db.query("SELECT * FROM roles");
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: "Error al obtener roles" });
+  }
+});
+
 export default router;
