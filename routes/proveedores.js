@@ -41,6 +41,28 @@ router.get("/", async (req, res) => {
 });
 
 // ============================================
+// GET: Consultar proveedor por ID
+// ============================================
+
+router.get("/:id", async (req, res) => {
+  try {
+    const proveedorId = req.params.id;
+
+    const [results] = await db.query("SELECT * FROM proveedores WHERE id = ?", [
+      proveedorId,
+    ]);
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Proveedor no encontrado" });
+    }
+
+    res.json(results[0]);
+  } catch (err) {
+    res.status(500).json({ error: "Error al obtener proveedor" });
+  }
+});
+
+// ============================================
 // PUT: Actualizar proveedor
 // ============================================
 router.put("/:id", async (req, res) => {
