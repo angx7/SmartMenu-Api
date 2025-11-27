@@ -20,6 +20,27 @@ router.get("/", verificarToken, requireRole(1), async (req, res) => {
 });
 
 // ====================================================
+// GET: obtener usuario por ID (solo admin)
+// ====================================================
+
+router.get("/:id", verificarToken, requireRole(1), async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const [results] = await db.query("SELECT * FROM usuarios WHERE id = ?", [
+      userId,
+    ]);
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    res.json(results[0]);
+  } catch (err) {
+    res.status(500).json({ error: "Error al obtener usuario" });
+  }
+});
+
+// ====================================================
 // POST: crear nuevo usuario (solo admin)
 // ====================================================
 router.post("/", verificarToken, requireRole(1), async (req, res) => {
