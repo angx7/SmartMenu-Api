@@ -11,12 +11,16 @@ router.get("/", async (req, res) => {
     // ============================
 
     const [ventasPorDia] = await db.query(`
+      SELECT dia, total FROM (
       SELECT DATE(p.fecha) AS dia, 
-             SUM(pd.cantidad * pl.precio) AS total
+           SUM(pd.cantidad * pl.precio) AS total
       FROM pedidos p
       JOIN pedido_detalles pd ON pd.pedido_id = p.id
       JOIN platillos pl ON pl.id = pd.platillo_id
       GROUP BY DATE(p.fecha)
+      ORDER BY dia DESC
+      LIMIT 3
+      ) sub
       ORDER BY dia ASC;
     `);
 
