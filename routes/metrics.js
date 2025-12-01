@@ -89,7 +89,7 @@ router.get("/", async (req, res) => {
             1. El array "graficas" SIEMPRE debe existir.
             2. El campo "type" SIEMPRE debe ser en inglés y singular: "line", "bar", "pie" o "table".
             3. Los títulos SIEMPRE deben ser los siguientes según la data recibida:
-              - ventas_por_dia → "Ventas diarias"
+              - ventas_por_dia → "Ventas últimos 5 días"
               - ventas_por_platillo → "Ventas por platillo"
               - insumos_bajos → "Insumos con stock bajo"
               - meseros_top → "Meseros con más pedidos"
